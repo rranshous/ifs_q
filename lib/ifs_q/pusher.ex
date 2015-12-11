@@ -2,6 +2,7 @@ defmodule IfsQ.Pusher do
   use GenServer
 
   def start() do
+    HTTPotion.start
     GenServer.start(IfsQ.Pusher, nil)
   end
 
@@ -10,7 +11,9 @@ defmodule IfsQ.Pusher do
   end
 
   def handle_cast({:dispatch, message, unit_id}, state) do
-    IO.puts "cast: #{message} by: #{state} for #{unit_id}"
+    full_message = "cast: #{message} by: #{state} for #{unit_id}"
+    IO.puts full_message
+    HTTPotion.post "http://localhost:4000/receive", [body: full_message, headers: []]
     { :noreply, state }
   end
 

@@ -32,6 +32,6 @@ defmodule IfsQ.Dispatcher do
   end
 
   defp dispatch(pid, message, unit_id) do
-    GenServer.call(pid, {:dispatch, message, unit_id})
+    GenServer.cast(pid, {:dispatch, message, unit_id})
   end
 end

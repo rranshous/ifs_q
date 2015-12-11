@@ -7,4 +7,8 @@
 # distributes messages to archiver
 
 defmodule IfsQ do
+  def start() do
+    { :ok, dispatcher_pid } = IfsQ.Dispatcher.start()
+    { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, []
+  end
 end
