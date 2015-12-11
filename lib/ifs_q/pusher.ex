@@ -13,7 +13,11 @@ defmodule IfsQ.Pusher do
   def handle_cast({:dispatch, message, unit_id}, state) do
     full_message = "cast: #{message} by: #{state} for #{unit_id}"
     IO.puts full_message
-    HTTPotion.post "http://localhost:4000/receive", [body: full_message, headers: []]
+    try do
+      HTTPotion.post "http://localhost:4044/event", [body: full_message, headers: []]
+    rescue
+      _ -> IO.puts "Failed to send #{full_message}"
+    end
     { :noreply, state }
   end
 

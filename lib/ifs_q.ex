@@ -8,7 +8,8 @@
 
 defmodule IfsQ do
   def start() do
-    { :ok, dispatcher_pid } = IfsQ.Dispatcher.start()
-    { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, []
+    { :ok, dispatcher_pid } = IfsQ.Dispatcher.start(:ifs_dispatcher)
+    { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, [], port: 5050
   end
+
 end

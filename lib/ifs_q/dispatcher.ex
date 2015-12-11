@@ -5,8 +5,8 @@ defmodule IfsQ.Dispatcher do
   require IEx
   use GenServer
 
-  def start() do
-    GenServer.start(IfsQ.Dispatcher, nil)
+  def start(name) do
+    GenServer.start(IfsQ.Dispatcher, nil, name: name)
   end
 
   def init(_) do
