@@ -14,18 +14,34 @@ defmodule IfsQ.Dispatcher do
   end
 
   def handle_call({:dispatch, message, unit_id}, _, state) do
-    {:ok, {:ok, pid}, state} = pid_for(state, unit_id)
+    {:ok, pid, state} = pid_for(state, unit_id)
     dispatch(pid, message, unit_id)
     { :reply, { :ok }, state }
   end
 
-  defp pid_for(state, unit_id) do
-    case HashDict.fetch(state, unit_id) do
-      :error -> make_a_new_pusher(state, unit_id)
-      _ -> {:ok, HashDict.fetch(state, unit_id), state}
-    end
+  def handle_call({:kill_pids}, _, state) do
+    HashDict.values(state)
+    |> Enum.each(fn(pid) -> Process.exit(pid, :kill) end)
+    { :reply, :ok , HashDict.new }
   end
 
+  def handle_call({:state}, _, state) do
+    {:reply, {:ok, state}, state}
+  end
+
+  defp pid_for(state, unit_id) do
+    HashDict.fetch(state, unit_id)
+    |> return_living_pid(state, unit_id) 
+  end
+
+  defp return_living_pid(:error, state, unit_id), do: make_a_new_pusher(state, unit_id)
+  defp return_living_pid({:ok, pid}, state, unit_id) do
+    case Process.alive? pid do
+      true -> {:ok, pid, state}
+      false -> make_a_new_pusher(state, unit_id)
+    end
+  end
+    
   defp make_a_new_pusher(state, unit_id) do
     {:ok, pid} = IfsQ.Pusher.start
     pid_for(HashDict.put(state, unit_id, pid), unit_id)

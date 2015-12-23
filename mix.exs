@@ -14,7 +14,7 @@ defmodule IfsQ.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpotion, :cowboy, :plug]]
+    [applications: [:logger, :httpoison, :cowboy, :plug]]
   end
 
   # Dependencies can be Hex packages:
@@ -25,11 +25,16 @@ defmodule IfsQ.Mixfile do
   #
   #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
   #
+  #      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2"},
+  #      {:httpotion, "~> 2.1.0"},
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2"},
-     {:httpotion, "~> 2.1.0"},
-     {:cowboy, "~> 1.0.0"},
-     {:plug, "~> 1.0"}]
+    [
+      {:httpoison, "~> 0.8.0"},
+      {:cowboy, "~> 1.0.0"},
+      {:plug, "~> 1.0"},
+      {:exjsx, "~> 3.2"},
+      {:uuid, "~> 0.1.1"}
+   ]
   end
 end

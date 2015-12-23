@@ -1,30 +1,29 @@
 defmodule IfsQ.Pusher do
   use GenServer
+  require Logger
+  require UUID
+  require IEx
 
   def start() do
-    HTTPotion.start
     GenServer.start(IfsQ.Pusher, nil)
   end
 
   def init(_) do
-    {:ok, :os.timestamp |> Tuple.to_list |> List.last }
+    {:ok, %{id: process_identifier, status: :normal}}
   end
 
   def handle_cast({:dispatch, message, unit_id}, state) do
-    full_message = "cast: #{message} by: #{state} for #{unit_id}"
-    IO.puts full_message
-    try do
-      HTTPotion.post "http://localhost:4044/event", [body: full_message, headers: []]
-    rescue
-      _ -> IO.puts "Failed to send #{full_message}"
-    end
+    full_message = "cast received: #{message} by: #{state.id} for #{unit_id}"
+    Logger.info full_message  
+
+    HTTPoison.post( "http://localhost:4044/event", JSX.encode!(%{message: message, unitId: unit_id}), %{"Content-Type" => "application/json"}, recv_timeout: 30000)
+    |> eventer_call
     { :noreply, state }
   end
 
-  def handle_call({:dispatch, message, unit_id}, _, state) do
-    #IO.puts self
-    IO.puts "call: #{message} by: #{state} for #{unit_id}"
-    IO.puts message
-    {:reply, { self, "received #{message} for #{unit_id}" }, state}
-  end
+  defp eventer_call({:ok, %{status_code: code, body: body}}) when (600 > code and code >= 500) , do: IO.puts "500:  #{body}"
+  defp eventer_call({:ok, response}), do: IO.puts "OK: #{response.body}"
+  defp eventer_call({:error, response}), do: IO.puts "ERROR: #{response.reason}"
+
+  defp process_identifier, do: UUID.uuid1 |> String.slice(0, 8)
 end
