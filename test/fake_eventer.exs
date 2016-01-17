@@ -6,7 +6,8 @@ defmodule FakeEventer do
   plug :match
   plug :dispatch
 
-  @port Application.get_env(:ifs_q, :eventer_port)
+  @port Application.get_env(:ifs_q, IfsQ)[:eventer_port]
+
   get "/hello" do
     send_resp(conn, 200, "world")
   end

@@ -44,7 +44,6 @@ defmodule IfsQ.Dispatcher do
     
   defp make_a_new_pusher(state, unit_id) do
     {:ok, pid} = IfsQ.Pusher.start(process_identifier(unit_id))
-    :ets.insert(:unit_pid, {unit_id, pid})
     pid_for(HashDict.put(state, unit_id, pid), unit_id)
   end
 
