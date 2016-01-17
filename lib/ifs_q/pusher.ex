@@ -4,26 +4,35 @@ defmodule IfsQ.Pusher do
   require UUID
   require IEx
 
-  def start() do
-    GenServer.start(IfsQ.Pusher, nil)
+
+  def start(name) do
+    GenServer.start(IfsQ.Pusher, nil, name: name)
   end
 
   def init(_) do
-    {:ok, %{id: process_identifier, status: :normal}}
+    {:ok, %{id: Process.info(self)[:registered_name], status: :normal}}
+  end
+
+  def handle_cast({:dispatch, _message, _unit_id}, %{id: _id, status: :logging}) do
   end
 
   def handle_cast({:dispatch, message, unit_id}, state) do
-    full_message = "cast received: #{message} by: #{state.id} for #{unit_id}"
-    Logger.info full_message  
+    Logger.info  "cast received: #{message} by: #{state.id} for #{unit_id}"
 
-    HTTPoison.post( "http://localhost:4044/event", JSX.encode!(%{message: message, unitId: unit_id}), %{"Content-Type" => "application/json"}, recv_timeout: 30000)
+    HTTPoison.post( "#{eventer_url}/event", JSX.encode!(%{message: message, unitId: unit_id}), %{"Content-Type" => "application/json"}, recv_timeout: 30000)
     |> eventer_call
     { :noreply, state }
   end
 
-  defp eventer_call({:ok, %{status_code: code, body: body}}) when (600 > code and code >= 500) , do: IO.puts "500:  #{body}"
-  defp eventer_call({:ok, response}), do: IO.puts "OK: #{response.body}"
-  defp eventer_call({:error, response}), do: IO.puts "ERROR: #{response.reason}"
+  defp eventer_call({:ok, %{status_code: code, body: body}}) when (600 > code and code >= 500) do
+    Logger.info "#{code}:  #{body} by #{registered_name}"
+  end
+  defp eventer_call({:ok, %{status_code: code, body: body}}) when (500 > code and code >= 400), do: Logger.info "#{code}: #{body} by #{registered_name}"
+  defp eventer_call({:ok, %{status_code: code, body: body}}) when (400 > code and code >= 300), do: Logger.info "#{code}: #{body} by #{registered_name}"
+  defp eventer_call({:ok, %{status_code: code, body: body}}) when (300 > code and code >= 200), do: Logger.info "OK: #{body} by #{registered_name}"
+  defp eventer_call({:error, response}), do: Logger.info "ERROR: #{response.reason} by #{registered_name}"
 
-  defp process_identifier, do: UUID.uuid1 |> String.slice(0, 8)
+  defp registered_name, do: Process.info(self)[:registered_name]
+
+  defp eventer_url, do: Application.get_env(:ifs_q, IfsQ)[:eventer_url]
 end

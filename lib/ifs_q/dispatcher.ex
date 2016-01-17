@@ -43,11 +43,13 @@ defmodule IfsQ.Dispatcher do
   end
     
   defp make_a_new_pusher(state, unit_id) do
-    {:ok, pid} = IfsQ.Pusher.start
+    {:ok, pid} = IfsQ.Pusher.start(process_identifier(unit_id))
+    :ets.insert(:unit_pid, {unit_id, pid})
     pid_for(HashDict.put(state, unit_id, pid), unit_id)
   end
 
   defp dispatch(pid, message, unit_id) do
     GenServer.cast(pid, {:dispatch, message, unit_id})
   end
+  defp process_identifier(unit_id), do: unit_id |> Integer.to_string |> (&("ifs_pusher_" <> &1)).() |> String.to_atom
 end
