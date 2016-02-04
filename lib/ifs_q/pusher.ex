@@ -19,7 +19,7 @@ defmodule IfsQ.Pusher do
   def handle_cast({:dispatch, message, unit_id}, state) do
     Logger.info  "cast received: #{message} by: #{state.id} for #{unit_id}"
 
-    HTTPoison.post( "#{eventer_url}/event", JSX.encode!(%{message: message, unitId: unit_id}), %{"Content-Type" => "application/json"}, recv_timeout: 30000)
+    HTTPoison.post( "#{eventer_url}/event", JSX.encode!(%{message: message, unitId: unit_id}), %{"Content-Type" => "application/text", "JMSXGroupID" => unit_id}, recv_timeout: 30000)
     |> eventer_call
     { :noreply, state }
   end

@@ -50,5 +50,5 @@ defmodule IfsQ.Dispatcher do
   defp dispatch(pid, message, unit_id) do
     GenServer.cast(pid, {:dispatch, message, unit_id})
   end
-  defp process_identifier(unit_id), do: unit_id |> Integer.to_string |> (&("ifs_pusher_" <> &1)).() |> String.to_atom
+  defp process_identifier(unit_id), do: unit_id |> (&("ifs_pusher_" <> &1)).() |> String.to_atom
 end
