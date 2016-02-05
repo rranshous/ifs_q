@@ -12,6 +12,7 @@ defmodule IfsQ do
   @port Application.get_env(:ifs_q, IfsQ)[:dispatch_port]
 
   def start() do
+    IfsQ.Repo.start_link
     { :ok, dispatcher_pid } = IfsQ.Dispatcher.start(:ifs_dispatcher)
     { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, [], port: @port, ref: :ifs_dispatcher_endpoint
   end

@@ -14,6 +14,8 @@ defmodule IfsQ.Dispatcher do
   end
 
   def handle_call({:dispatch, message, unit_id}, _, state) do
+    changeset = %IfsQ.Message{body: "body", shard_id: "23"}
+    IfsQ.Repo.insert(changeset)
     {:ok, pid, state} = pid_for(state, unit_id)
     dispatch(pid, message, unit_id)
     { :reply, { :ok }, state }

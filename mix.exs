@@ -4,7 +4,7 @@ defmodule IfsQ.Mixfile do
   def project do
     [app: :ifs_q,
      version: "0.0.1",
-     elixir: "~> 1.1",
+     elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -14,7 +14,7 @@ defmodule IfsQ.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :cowboy, :plug]]
+    [applications: [:logger, :httpoison, :cowboy, :plug, :postgrex, :ecto]]
   end
 
   # Dependencies can be Hex packages:
@@ -34,6 +34,8 @@ defmodule IfsQ.Mixfile do
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:exjsx, "~> 3.2"},
+      {:postgrex, ">= 0.0.0"},
+      {:ecto, "~> 1.1.2"},
       {:uuid, "~> 0.1.1"}
    ]
   end
