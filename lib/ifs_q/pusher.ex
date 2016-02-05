@@ -16,10 +16,11 @@ defmodule IfsQ.Pusher do
   def handle_cast({:dispatch, _message, _unit_id}, %{id: _id, status: :logging}) do
   end
 
-  def handle_cast({:dispatch, message, unit_id}, state) do
+  def handle_cast({:dispatch, message, unit_id, message_id}, state) do
     Logger.info  "cast received: #{message} by: #{state.id} for #{unit_id}"
 
     call_eventer(message, unit_id)
+    mark_sent(message_id)
     { :noreply, state }
   end
 
@@ -47,4 +48,10 @@ defmodule IfsQ.Pusher do
   defp registered_name, do: Process.info(self)[:registered_name]
 
   defp eventer_url, do: Application.get_env(:ifs_q, IfsQ)[:eventer_url]
+
+  defp mark_sent message_id do
+    IfsQ.Repo.get(IfsQ.Message, message_id)
+    |> Ecto.Changeset.change(sent: true)
+    |> IfsQ.Repo.update
+  end
 end

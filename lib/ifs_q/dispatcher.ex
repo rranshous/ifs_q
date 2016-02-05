@@ -13,11 +13,17 @@ defmodule IfsQ.Dispatcher do
     {:ok, HashDict.new}
   end
 
-  def handle_call({:dispatch, message, unit_id}, _, state) do
-    changeset = %IfsQ.Message{body: "body", shard_id: "23"}
-    IfsQ.Repo.insert(changeset)
+  def handle_call({:dispatch, message_body, unit_id}, _, state) do
+    changeset = %IfsQ.Message{body: "#{message_body}", shard_id: "23"}
+    {:ok, message} = IfsQ.Repo.insert(changeset)
     {:ok, pid, state} = pid_for(state, unit_id)
-    dispatch(pid, message, unit_id)
+    dispatch(pid, message_body, unit_id, message.id)
+    { :reply, { :ok }, state }
+  end
+
+  def handle_call({:dispatch, message_body, unit_id, message_id}, _, state) do
+    {:ok, pid, state} = pid_for(state, unit_id)
+    dispatch(pid, message_body, unit_id, message_id)
     { :reply, { :ok }, state }
   end
 
@@ -49,8 +55,8 @@ defmodule IfsQ.Dispatcher do
     pid_for(HashDict.put(state, unit_id, pid), unit_id)
   end
 
-  defp dispatch(pid, message, unit_id) do
-    GenServer.cast(pid, {:dispatch, message, unit_id})
+  defp dispatch(pid, message, unit_id, message_id) do
+    GenServer.cast(pid, {:dispatch, message, unit_id, message_id})
   end
   defp process_identifier(unit_id), do: unit_id |> (&("ifs_pusher_" <> &1)).() |> String.to_atom
 end

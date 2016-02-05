@@ -14,6 +14,7 @@ defmodule IfsQ do
   def start() do
     IfsQ.Repo.start_link
     { :ok, dispatcher_pid } = IfsQ.Dispatcher.start(:ifs_dispatcher)
+    IfsQ.Replayer.replay
     { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, [], port: @port, ref: :ifs_dispatcher_endpoint
   end
     
