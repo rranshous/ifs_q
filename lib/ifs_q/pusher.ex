@@ -43,7 +43,10 @@ defmodule IfsQ.Pusher do
 
   defp eventer_call({:ok, %{status_code: code, body: body}}, _, _) when (400 > code and code >= 300), do: Logger.info "#{code}: #{body} by #{registered_name}"
   defp eventer_call({:ok, %{status_code: code, body: body}}, _, _) when (300 > code and code >= 200), do: Logger.info "OK: #{body} by #{registered_name}"
-  defp eventer_call({:error, response}, _, _), do: Logger.info "ERROR: #{response.reason} by #{registered_name}"
+  defp eventer_call({:error, response}, message, unit_id) do
+    Logger.info "ERROR: #{response.reason} by #{registered_name}"
+    call_eventer(message, unit_id)
+  end
 
   defp registered_name, do: Process.info(self)[:registered_name]
 
