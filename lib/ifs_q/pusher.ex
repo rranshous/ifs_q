@@ -27,9 +27,9 @@ defmodule IfsQ.Pusher do
   defp call_eventer(message, unit_id) do
     HTTPoison.post( "#{eventer_url}/event",
                     JSX.encode!(%{message: message, unitId: unit_id}), 
-                    %{"Content-Type" => "application/text",
+                    %{"Content-Type" => "text/plain",
                       "JMSXGroupID" => unit_id},
-                    recv_timeout: 30000)
+                    recv_timeout: 50)
     |> eventer_call(message, unit_id)
   end
 

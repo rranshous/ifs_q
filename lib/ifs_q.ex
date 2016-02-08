@@ -1,11 +1,3 @@
-# need a dispatcher
-# dispatcher takes in messages from the world
-# distributes messages to workers
-## know which worker to send a message 
-## know whether that worker is alive
-
-# distributes messages to archiver
-
 defmodule IfsQ do
   require IEx
 
@@ -13,9 +5,9 @@ defmodule IfsQ do
 
   def start() do
     IfsQ.Repo.start_link
-    { :ok, dispatcher_pid } = IfsQ.Dispatcher.start(:ifs_dispatcher)
-    IfsQ.Replayer.replay
-    { :ok, http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, [], port: @port, ref: :ifs_dispatcher_endpoint
+    { :ok, _dispatcher_pid } = IfsQ.Dispatcher.start(:ifs_dispatcher)
+    IfsQ.DataDealer.replay
+    { :ok, _http_interface_pid } = Plug.Adapters.Cowboy.http IfsQ.HttpInterface, [], port: @port, ref: :ifs_dispatcher_endpoint
   end
     
   def stop() do

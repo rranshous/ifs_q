@@ -3,8 +3,10 @@ defmodule IfsQ.Message do
   import Ecto.Changeset
 
   schema "messages" do
-    field :body,      :string
+    field :body,     :string
     field :shard_id, :string
     field :sent,     :boolean, default: false
+
+    timestamps([usec: true])
   end
 end

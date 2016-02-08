@@ -7,7 +7,7 @@ defmodule IfsQ.Repo.Migrations.Message do
       add :shard_id, :string, size: 140
       add :sent,     :boolean, default: false
 
-      #timestamps
+      timestamps
     end
   end
 

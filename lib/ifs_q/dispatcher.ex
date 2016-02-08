@@ -1,6 +1,3 @@
-# This is the dispatcher
-# The dispatcher takes messages from the outside world and sends them to workers and archivers
-
 defmodule IfsQ.Dispatcher do
   require IEx
   use GenServer

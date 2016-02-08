@@ -1,7 +1,7 @@
 # This is the replayer
 # The replayer takes messages from the database and sends them to workers and archivers
 
-defmodule IfsQ.Replayer do
+defmodule IfsQ.DataDealer do
   import Ecto.Query, only: [from: 2]
 
   def replay do
@@ -15,4 +15,10 @@ defmodule IfsQ.Replayer do
                           end)
   end
 
+  def record(message_body, shard_id) do
+    changeset = %IfsQ.Message{body: "#{message_body}", shard_id: "#{shard_id}"}
+    {:ok, message} = IfsQ.Repo.insert(changeset)
+    GenServer.whereis(:ifs_dispatcher)
+    |> GenServer.call({:dispatch, message_body, shard_id, message.id})
+  end
 end
